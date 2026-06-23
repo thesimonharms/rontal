@@ -24,11 +24,11 @@
     "node": ">=22"
   },
   "dependencies": {
-    "@tyravel/core": "^0.3.0",
-    "@tyravel/database": "^0.3.0",
-    "@tyravel/http": "^0.3.0",
-    "@tyravel/support": "^0.3.0",
-    "@tyravel/validation": "^0.3.0",
+    "@tyravel/core": "^0.7.0",
+    "@tyravel/database": "^0.7.0",
+    "@tyravel/http": "^0.7.0",
+    "@tyravel/support": "^0.7.0",
+    "@tyravel/validation": "^0.7.0",
     "marked": "^15.0.0"
   },
   "devDependencies": {
