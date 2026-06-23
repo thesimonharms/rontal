@@ -137,30 +137,17 @@ export class PostController {
 
   /**
    * GET /api/posts/drafts — paginated list of unpublished posts.
-   *
-   * Workaround: Tyravel's query builder lacks `whereNull`. We fetch all posts
-   * and filter in JS, then manually paginate. Acceptable for typical blog draft
-   * counts.
    */
   async drafts(request: TyravelRequest) {
     const page = request.page();
     const perPage = request.perPage();
 
-    const all = await Post.query()
+    const paginator = await Post.query()
+      .whereNull('published_at')
       .orderBy('created_at', 'desc')
-      .getModels();
+      .paginateModels(perPage, page);
 
-    const drafts = all.filter(
-      (post) => !post.getAttribute('published_at'),
-    );
-
-    const total = drafts.length;
-    const lastPage = Math.max(1, Math.ceil(total / perPage));
-    const from = total === 0 ? null : (page - 1) * perPage + 1;
-    const to = total === 0 ? null : Math.min(page * perPage, total);
-    const items = drafts.slice((page - 1) * perPage, page * perPage);
-
-    const data = items.map((post) => {
+    const data = paginator.items.map((post) => {
       const json = post.toJSON();
       return {
         title: json.title,
@@ -172,12 +159,7 @@ export class PostController {
 
     return Response.json({
       data,
-      currentPage: page,
-      perPage,
-      total,
-      lastPage,
-      from,
-      to,
+      ...paginator.meta(),
     });
   }
 
