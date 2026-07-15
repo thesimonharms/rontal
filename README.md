@@ -2,7 +2,7 @@
 
 ꦫꦺꦴꦠꦭ꧀
 
-A minimal, headless blog API package for [Tyravel](https://github.com/thesimonharms/tyravel). Ships a `Post` model, full CRUD controller, and API routes. Stores post bodies as Markdown and renders them server-side via `marked`.
+A minimal, headless blog API package for [Pondoknusa](https://github.com/pondoknusa/pondoknusa). Ships a `Post` model, full CRUD controller, and API routes. Stores post bodies as Markdown and renders them server-side via `marked`.
 
 > No opinions on auth, frontend, or theming — bring your own.
 
@@ -10,8 +10,8 @@ The name **rontal** (ꦫꦺꦴꦠꦭ꧀) is the Old Javanese ancestor of the Ind
 
 ## Requirements
 
-- **Node.js >= 22**
-- A Tyravel application with `@tyravel/auth` configured (for authenticated endpoints)
+- **Node.js >= 26**
+- A Pondoknusa application with `@pondoknusa/auth` configured (for authenticated endpoints)
 
 ## Installation
 
@@ -30,7 +30,7 @@ app.register(RontalServiceProvider);
 Run migrations:
 
 ```bash
-tyravel migrate
+pondoknusa migrate
 ```
 
 The service provider auto-registers API routes under `/api` and contributes the posts migration to your app's migration runner.

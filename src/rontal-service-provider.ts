@@ -1,10 +1,10 @@
-import { Route, ServiceProvider } from '@tyravel/core';
+import { Route, ServiceProvider } from '@pondoknusa/core';
 import { registerRontalRoutes } from './routes/api.js';
 
 /**
  * Rontal service provider.
  *
- * Register in your Tyravel app:
+ * Register in your Pondoknusa app:
  *
  * ```typescript
  * import { RontalServiceProvider } from 'rontal';
@@ -13,7 +13,7 @@ import { registerRontalRoutes } from './routes/api.js';
  * ```
  *
  * This will:
- * - Load the posts migration (runs with `tyravel migrate`)
+ * - Load the posts migration (runs with `pondoknusa migrate`)
  * - Merge default config under the `rontal` key
  * - Register all API routes under `/api`
  */

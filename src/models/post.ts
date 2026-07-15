@@ -1,6 +1,6 @@
-import { Model } from '@tyravel/database';
-import type { ModelQueryBuilder } from '@tyravel/database';
-import { Str } from '@tyravel/support';
+import { Model } from '@pondoknusa/database';
+import type { ModelQueryBuilder } from '@pondoknusa/database';
+import { Str } from '@pondoknusa/support';
 import { renderMarkdown } from '../markdown.js';
 
 export interface PostAttributes {

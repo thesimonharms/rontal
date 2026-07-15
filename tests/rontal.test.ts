@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { SqliteConnection, SchemaBuilder, Model } from '@tyravel/database';
-import { TyravelRequest } from '@tyravel/http';
+import { SqliteConnection, SchemaBuilder, Model } from '@pondoknusa/database';
+import { PondoknusaRequest } from '@pondoknusa/http';
 import { Post } from '../dist/models/post.js';
 import { renderMarkdown } from '../dist/markdown.js';
 import { PostController } from '../dist/controllers/post-controller.js';
@@ -279,9 +279,9 @@ describe('PostController', () => {
       headers: { 'content-type': 'application/json', ...opts.headers },
       body,
     });
-    // Attach params by constructing a TyravelRequest-like object
-    const tyravelReq = new TyravelRequest(request, opts.params ?? {});
-    return tyravelReq;
+    // Attach params by constructing a PondoknusaRequest-like object
+    const pondoknusaReq = new PondoknusaRequest(request, opts.params ?? {});
+    return pondoknusaReq;
   }
 
   it('index returns paginated published posts', async () => {

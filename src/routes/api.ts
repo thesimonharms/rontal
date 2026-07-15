@@ -1,5 +1,5 @@
-import { Route } from '@tyravel/core';
-import type { RouteHandler } from '@tyravel/http';
+import { Route } from '@pondoknusa/core';
+import type { RouteHandler } from '@pondoknusa/http';
 import { PostController } from '../controllers/post-controller.js';
 import { rssFeed, atomFeed } from '../controllers/feed-controller.js';
 
