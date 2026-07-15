@@ -1,6 +1,7 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { SqliteConnection, SchemaBuilder, Model } from '@pondoknusa/database';
+import { fileURLToPath } from 'node:url';
+import { SqliteConnection, SchemaBuilder, Model, Migrator } from '@pondoknusa/database';
 import { PondoknusaRequest } from '@pondoknusa/http';
 import { Post } from '../dist/models/post.js';
 import { renderMarkdown } from '../dist/markdown.js';
@@ -556,5 +557,24 @@ describe('PostController', () => {
 
     assert.equal(res.status, 200);
     assert.equal(json.published_at, null);
+  });
+});
+
+describe('Pondoknusa migration discovery', () => {
+  it('publishes a numbered migration that Migrator can run', async () => {
+    const migrationsDir = fileURLToPath(
+      new URL('../dist/migrations', import.meta.url),
+    );
+    const connection = new SqliteConnection(':memory:');
+    const migrator = new Migrator(connection, migrationsDir);
+    const ran = await migrator.run();
+
+    assert.deepEqual(ran, ['20260623000000_create_posts_table.js']);
+
+    const result = await connection.query(
+      'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+      ['table', 'posts'],
+    );
+    assert.equal(result.rows.length, 1);
   });
 });

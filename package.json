@@ -17,8 +17,7 @@
     "test": "npm run build && node --test --experimental-strip-types tests/**/*.test.ts"
   },
   "files": [
-    "dist",
-    "database"
+    "dist"
   ],
   "engines": {
     "node": ">=26"
@@ -32,7 +31,7 @@
     "marked": "^15.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.0.1",
     "typescript": "^6.0.3"
   },
   "license": "MIT",

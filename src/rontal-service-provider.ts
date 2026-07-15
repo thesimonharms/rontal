@@ -27,7 +27,7 @@ export class RontalServiceProvider extends ServiceProvider {
 
   override boot(): void {
     this.loadMigrationsFrom(
-      new URL('./migrations/create_posts_table.js', import.meta.url).pathname,
+      new URL('./migrations', import.meta.url).pathname,
     );
 
     Route.prefix('api').group(() => {
