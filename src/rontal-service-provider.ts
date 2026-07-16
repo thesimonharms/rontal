@@ -1,10 +1,11 @@
+import { join } from 'node:path';
 import { Route, ServiceProvider } from '@pondoknusa/core';
 import { registerRontalRoutes } from './routes/api.js';
 
 /**
  * Rontal service provider.
  *
- * Register in your Pondoknusa app:
+ * Register in your Pondoknusa app (after `setRouteApplication(app)`):
  *
  * ```typescript
  * import { RontalServiceProvider } from 'rontal';
@@ -19,17 +20,14 @@ import { registerRontalRoutes } from './routes/api.js';
  */
 export class RontalServiceProvider extends ServiceProvider {
   override async register(): Promise<void> {
+    this.loadMigrationsFrom(join(import.meta.dirname!, 'migrations'));
     await this.mergeConfigFrom(
-      new URL('./config/rontal.js', import.meta.url).pathname,
+      join(import.meta.dirname!, 'config', 'rontal.js'),
       'rontal',
     );
   }
 
   override boot(): void {
-    this.loadMigrationsFrom(
-      new URL('./migrations', import.meta.url).pathname,
-    );
-
     Route.prefix('api').group(() => {
       registerRontalRoutes();
     });
