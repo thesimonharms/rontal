@@ -1,6 +1,6 @@
-import { Migration } from '@tyravel/database';
-import type { DatabaseConnection } from '@tyravel/database';
-import type { SchemaBuilder } from '@tyravel/database';
+import { Migration } from '@pondoknusa/database';
+import type { DatabaseConnection } from '@pondoknusa/database';
+import type { SchemaBuilder } from '@pondoknusa/database';
 
 export default class CreatePostsTable extends Migration {
   override async up(_connection: DatabaseConnection, schema: SchemaBuilder) {

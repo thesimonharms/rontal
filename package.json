@@ -1,7 +1,7 @@
 {
   "name": "rontal",
   "version": "0.1.0",
-  "description": "Headless blog API for Tyravel — bring your own frontend. The Old Javanese ancestor of lontar.",
+  "description": "Headless blog API for Pondoknusa — bring your own frontend. The Old Javanese ancestor of lontar.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -17,22 +17,21 @@
     "test": "npm run build && node --test --experimental-strip-types tests/**/*.test.ts"
   },
   "files": [
-    "dist",
-    "database"
+    "dist"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=26"
   },
   "dependencies": {
-    "@tyravel/core": "^0.7.0",
-    "@tyravel/database": "^0.7.0",
-    "@tyravel/http": "^0.7.0",
-    "@tyravel/support": "^0.7.0",
-    "@tyravel/validation": "^0.7.0",
+    "@pondoknusa/core": "^3.0.0",
+    "@pondoknusa/database": "^3.0.0",
+    "@pondoknusa/http": "^3.0.0",
+    "@pondoknusa/support": "^3.0.0",
+    "@pondoknusa/validation": "^3.0.0",
     "marked": "^15.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "^26.0.1",
     "typescript": "^6.0.3"
   },
   "license": "MIT",
@@ -47,7 +46,7 @@
     "blog",
     "cms",
     "headless",
-    "tyravel",
+    "pondoknusa",
     "api",
     "markdown"
   ]
