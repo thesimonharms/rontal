@@ -1,14 +1,13 @@
-import type { TyravelRequest } from '@tyravel/http';
-import { Response } from '@tyravel/http';
-import { validateRequest } from '@tyravel/validation';
+import type { PondoknusaRequest } from '@pondoknusa/http';
+import { Response } from '@pondoknusa/http';
+import { validateRequest } from '@pondoknusa/validation';
 import { Post } from '../models/post.js';
-import { LengthAwarePaginator } from '@tyravel/database';
 
 export class PostController {
   /**
    * GET /api/posts — paginated list of published posts.
    */
-  async index(request: TyravelRequest) {
+  async index(request: PondoknusaRequest) {
     const page = request.page();
     const perPage = request.perPage();
     const posts = await Post.scope('published')
@@ -35,7 +34,7 @@ export class PostController {
   /**
    * GET /api/posts/:slug — full detail for a single published post.
    */
-  async show(request: TyravelRequest) {
+  async show(request: PondoknusaRequest) {
     const slug = request.param('slug');
     const post = await Post.scope('published')
       .where('slug', slug!)
@@ -51,7 +50,7 @@ export class PostController {
   /**
    * POST /api/posts — create a new post.
    */
-  async store(request: TyravelRequest) {
+  async store(request: PondoknusaRequest) {
     const data = await validateRequest(request, {
       title: 'required|string|max:255',
       body: 'required|string',
@@ -77,7 +76,7 @@ export class PostController {
   /**
    * PUT /api/posts/:slug — update a post.
    */
-  async update(request: TyravelRequest) {
+  async update(request: PondoknusaRequest) {
     const slug = request.param('slug');
     const post = await Post.where('slug', slug!).firstModel();
 
@@ -122,7 +121,7 @@ export class PostController {
   /**
    * DELETE /api/posts/:slug — delete a post.
    */
-  async destroy(request: TyravelRequest) {
+  async destroy(request: PondoknusaRequest) {
     const slug = request.param('slug');
     const post = await Post.where('slug', slug!).firstModel();
 
@@ -138,7 +137,7 @@ export class PostController {
   /**
    * GET /api/posts/drafts — paginated list of unpublished posts.
    */
-  async drafts(request: TyravelRequest) {
+  async drafts(request: PondoknusaRequest) {
     const page = request.page();
     const perPage = request.perPage();
 
@@ -166,7 +165,7 @@ export class PostController {
   /**
    * POST /api/posts/:slug/publish — set published_at to now.
    */
-  async publish(request: TyravelRequest) {
+  async publish(request: PondoknusaRequest) {
     const slug = request.param('slug');
     const post = await Post.where('slug', slug!).firstModel();
 
@@ -186,7 +185,7 @@ export class PostController {
   /**
    * POST /api/posts/:slug/unpublish — set published_at to null.
    */
-  async unpublish(request: TyravelRequest) {
+  async unpublish(request: PondoknusaRequest) {
     const slug = request.param('slug');
     const post = await Post.where('slug', slug!).firstModel();
 

@@ -1,11 +1,11 @@
-import type { TyravelRequest } from '@tyravel/http';
-import { Response } from '@tyravel/http';
+import type { PondoknusaRequest } from '@pondoknusa/http';
+import { Response } from '@pondoknusa/http';
 import { Post } from '../models/post.js';
 
 /**
  * GET /api/feed — RSS 2.0 feed of published posts.
  */
-export async function rssFeed(request: TyravelRequest) {
+export async function rssFeed(request: PondoknusaRequest) {
   const posts = await Post.scope('published')
     .orderBy('published_at', 'desc')
     .getModels();
@@ -46,7 +46,7 @@ ${items}
 /**
  * GET /api/feed/atom — Atom 1.0 feed of published posts.
  */
-export async function atomFeed(request: TyravelRequest) {
+export async function atomFeed(request: PondoknusaRequest) {
   const posts = await Post.scope('published')
     .orderBy('published_at', 'desc')
     .getModels();

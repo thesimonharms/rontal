@@ -1,7 +1,8 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { SqliteConnection, SchemaBuilder, Model } from '@tyravel/database';
-import { TyravelRequest } from '@tyravel/http';
+import { fileURLToPath } from 'node:url';
+import { SqliteConnection, SchemaBuilder, Model, Migrator } from '@pondoknusa/database';
+import { PondoknusaRequest } from '@pondoknusa/http';
 import { Post } from '../dist/models/post.js';
 import { renderMarkdown } from '../dist/markdown.js';
 import { PostController } from '../dist/controllers/post-controller.js';
@@ -279,9 +280,9 @@ describe('PostController', () => {
       headers: { 'content-type': 'application/json', ...opts.headers },
       body,
     });
-    // Attach params by constructing a TyravelRequest-like object
-    const tyravelReq = new TyravelRequest(request, opts.params ?? {});
-    return tyravelReq;
+    // Attach params by constructing a PondoknusaRequest-like object
+    const pondoknusaReq = new PondoknusaRequest(request, opts.params ?? {});
+    return pondoknusaReq;
   }
 
   it('index returns paginated published posts', async () => {
@@ -556,5 +557,113 @@ describe('PostController', () => {
 
     assert.equal(res.status, 200);
     assert.equal(json.published_at, null);
+  });
+});
+
+describe('Pondoknusa migration discovery', () => {
+  it('publishes a numbered migration that Migrator can run', async () => {
+    const migrationsDir = fileURLToPath(
+      new URL('../dist/migrations', import.meta.url),
+    );
+    const connection = new SqliteConnection(':memory:');
+    const migrator = new Migrator(connection, migrationsDir);
+    const ran = await migrator.run();
+
+    assert.deepEqual(ran, ['20260623000000_create_posts_table.js']);
+
+    const result = await connection.query(
+      'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+      ['table', 'posts'],
+    );
+    assert.equal(result.rows.length, 1);
+  });
+});
+
+describe('RontalServiceProvider consumer boot', () => {
+  it('registers migrations, config, and /api routes for a host app', async () => {
+    const { mkdtempSync, mkdirSync, rmSync } = await import('node:fs');
+    const { tmpdir } = await import('node:os');
+    const { join } = await import('node:path');
+    const { ConfigRepository } = await import('@pondoknusa/config');
+    const {
+      Application,
+      DatabaseServiceProvider,
+      setRouteApplication,
+    } = await import('@pondoknusa/core');
+    const { RontalServiceProvider } = await import(
+      '../dist/rontal-service-provider.js'
+    );
+
+    const root = mkdtempSync(join(tmpdir(), 'rontal-consumer-'));
+    mkdirSync(join(root, 'database/migrations'), { recursive: true });
+
+    try {
+      const app = new Application(root);
+      app.instance(
+        'config',
+        new ConfigRepository({
+          database: {
+            default: 'sqlite',
+            connections: {
+              sqlite: { driver: 'sqlite', database: ':memory:' },
+            },
+          },
+        }),
+      );
+      setRouteApplication(app);
+      app.middleware('auth:api', async (_request, next) => next());
+      app.register(DatabaseServiceProvider);
+      app.register(RontalServiceProvider);
+      await app.boot();
+
+      const paths = app.migrationPaths();
+      assert.ok(
+        paths.some(
+          (path) =>
+            path.endsWith(join('dist', 'migrations')) ||
+            path.includes(`${join('dist', 'migrations')}`),
+        ),
+      );
+
+      const config = app.make('config') as {
+        get: (key: string) => unknown;
+      };
+      assert.deepEqual(config.get('rontal'), {
+        per_page: 15,
+        feed_title: 'Blog Feed',
+        feed_description: 'Latest posts',
+      });
+
+      const routes = app.router().listRoutes();
+      const patterns = new Set(
+        routes.map((route) => `${route.method} ${route.uri}`),
+      );
+      for (const expected of [
+        'GET /api/posts',
+        'GET /api/posts/:slug',
+        'GET /api/feed',
+        'GET /api/feed/atom',
+        'GET /api/posts/drafts',
+        'POST /api/posts',
+        'PUT /api/posts/:slug',
+        'DELETE /api/posts/:slug',
+        'POST /api/posts/:slug/publish',
+        'POST /api/posts/:slug/unpublish',
+      ]) {
+        assert.ok(patterns.has(expected), `missing route ${expected}`);
+      }
+
+      const drafts = routes.find(
+        (route) => route.method === 'GET' && route.uri === '/api/posts/drafts',
+      );
+      assert.ok(drafts);
+      assert.deepEqual(drafts.middleware, ['auth:api']);
+
+      const connection = new SqliteConnection(':memory:');
+      const ran = await new Migrator(connection, paths).run();
+      assert.ok(ran.includes('20260623000000_create_posts_table.js'));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 });
