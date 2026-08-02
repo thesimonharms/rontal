@@ -1,6 +1,6 @@
 {
   "name": "rontal",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Headless blog API for Pondoknusa — bring your own frontend. The Old Javanese ancestor of lontar.",
   "type": "module",
   "main": "./dist/index.js",
@@ -23,11 +23,11 @@
     "node": ">=26"
   },
   "dependencies": {
-    "@pondoknusa/core": "^3.0.0",
-    "@pondoknusa/database": "^3.0.0",
-    "@pondoknusa/http": "^3.0.0",
-    "@pondoknusa/support": "^3.0.0",
-    "@pondoknusa/validation": "^3.0.0",
+    "@pondoknusa/core": "^4.0.1",
+    "@pondoknusa/database": "^4.0.1",
+    "@pondoknusa/http": "^4.0.1",
+    "@pondoknusa/support": "^4.0.1",
+    "@pondoknusa/validation": "^4.0.1",
     "marked": "^15.0.0"
   },
   "devDependencies": {
