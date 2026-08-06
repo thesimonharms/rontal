@@ -1,7 +1,7 @@
 {
   "name": "rontal",
-  "version": "0.2.0",
-  "description": "Headless blog API for Pondoknusa — bring your own frontend. The Old Javanese ancestor of lontar.",
+  "version": "0.3.0",
+  "description": "Headless blog API for Pondoknusa — bring your own frontend. Optional ActivityPub publisher. The Old Javanese ancestor of lontar.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -48,6 +48,8 @@
     "headless",
     "pondoknusa",
     "api",
-    "markdown"
+    "markdown",
+    "activitypub",
+    "fediverse"
   ]
 }

@@ -48,6 +48,21 @@ The service provider auto-registers API routes under `/api` and contributes the 
 
 *Posts with a `null` or future `published_at` are treated as drafts and excluded from public responses.*
 
+### ActivityPub (optional)
+
+When `rontal.fediverse.enabled` is `true`, Rontal also mounts a one-way blog publisher:
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/.well-known/webfinger` | Account discovery (`acct:username@host`) |
+| `GET` | `/ap/actor` | Blog actor (`Service`) with public key |
+| `GET` | `/ap/actor/outbox` | `OrderedCollection` of `Create` activities |
+| `GET` | `/ap/actor/followers` | Follower collection (count only) |
+| `POST` | `/ap/actor/inbox` | Accepts signed `Follow` / `Undo(Follow)` |
+| `GET` | `/ap/posts/:id` | `Article` object for a published post |
+
+On publish / update / unpublish / delete, Rontal fans out signed `Create` / `Update` / `Delete` activities to stored followers. Replies, likes, and other inbound social activities are ignored.
+
 ### Authenticated (`auth:api`)
 
 | Method | Endpoint | Description |
@@ -119,8 +134,18 @@ export default {
   per_page: 15,
   feed_title: 'My Blog',
   feed_description: 'Latest posts from my blog',
+  fediverse: {
+    enabled: true,
+    username: 'blog', // @blog@your-domain
+    display_name: '', // falls back to feed_title
+    summary: '', // falls back to feed_description
+    public_base_url: 'https://blog.example.com', // required for delivery
+    post_permalink: 'https://blog.example.com/posts/{slug}', // optional Article url
+  },
 };
 ```
+
+Set `fediverse.enabled` to `true` and provide `public_base_url` (your public HTTPS origin). An RSA keypair is generated automatically on first use and stored in `fediverse_actor_keys`. Followers are stored in `fediverse_followers`.
 
 ## License
 
