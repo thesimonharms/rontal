@@ -1,7 +1,19 @@
 import type { PondoknusaRequest } from '@pondoknusa/http';
 import { Response } from '@pondoknusa/http';
 import { validateRequest } from '@pondoknusa/validation';
+import {
+  announceCreate,
+  announceDelete,
+  announceUpdate,
+} from '../fediverse/announce.js';
 import { Post } from '../models/post.js';
+
+function wasPublished(publishedAt: unknown): boolean {
+  if (!publishedAt) {
+    return false;
+  }
+  return new Date(publishedAt as string).getTime() <= Date.now();
+}
 
 export class PostController {
   /**
@@ -70,6 +82,8 @@ export class PostController {
       updated_at: new Date().toISOString(),
     });
 
+    await announceCreate(post);
+
     return Response.json(post.toJSON(), { status: 201 });
   }
 
@@ -83,6 +97,10 @@ export class PostController {
     if (!post) {
       return Response.json({ message: 'Post not found' }, { status: 404 });
     }
+
+    const previouslyPublished = wasPublished(
+      post.getAttribute('published_at'),
+    );
 
     const data = await validateRequest(request, {
       title: 'sometimes|string|max:255',
@@ -113,9 +131,22 @@ export class PostController {
     updates.updated_at = new Date().toISOString();
 
     await post.update(updates);
-    const fresh = await post.fresh();
+    const fresh = (await post.fresh()) as Post | null;
+    const current = fresh ?? post;
+    const nowPublished = wasPublished(current.getAttribute('published_at'));
 
-    return Response.json(fresh?.toJSON() ?? post.toJSON());
+    if (!previouslyPublished && nowPublished) {
+      await announceCreate(current);
+    } else if (previouslyPublished && !nowPublished) {
+      await announceDelete(
+        current.getAttribute('id') as number,
+        true,
+      );
+    } else if (previouslyPublished && nowPublished) {
+      await announceUpdate(current);
+    }
+
+    return Response.json(current.toJSON());
   }
 
   /**
@@ -129,7 +160,10 @@ export class PostController {
       return Response.json({ message: 'Post not found' }, { status: 404 });
     }
 
+    const id = post.getAttribute('id') as number;
+    const published = wasPublished(post.getAttribute('published_at'));
     await post.delete();
+    await announceDelete(id, published);
 
     return Response.noContent();
   }
@@ -178,8 +212,11 @@ export class PostController {
       updated_at: new Date().toISOString(),
     });
 
-    const fresh = await post.fresh();
-    return Response.json(fresh?.toJSON() ?? post.toJSON());
+    const fresh = (await post.fresh()) as Post | null;
+    const current = fresh ?? post;
+    await announceCreate(current);
+
+    return Response.json(current.toJSON());
   }
 
   /**
@@ -193,12 +230,17 @@ export class PostController {
       return Response.json({ message: 'Post not found' }, { status: 404 });
     }
 
+    const id = post.getAttribute('id') as number;
+    const published = wasPublished(post.getAttribute('published_at'));
+
     await post.update({
       published_at: null,
       updated_at: new Date().toISOString(),
     });
 
-    const fresh = await post.fresh();
+    await announceDelete(id, published);
+
+    const fresh = (await post.fresh()) as Post | null;
     return Response.json(fresh?.toJSON() ?? post.toJSON());
   }
 }

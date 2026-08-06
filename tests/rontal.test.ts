@@ -569,13 +569,22 @@ describe('Pondoknusa migration discovery', () => {
     const migrator = new Migrator(connection, migrationsDir);
     const ran = await migrator.run();
 
-    assert.deepEqual(ran, ['20260623000000_create_posts_table.js']);
+    assert.deepEqual(ran, [
+      '20260623000000_create_posts_table.js',
+      '20260806000000_create_fediverse_tables.js',
+    ]);
 
-    const result = await connection.query(
+    const posts = await connection.query(
       'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
       ['table', 'posts'],
     );
-    assert.equal(result.rows.length, 1);
+    assert.equal(posts.rows.length, 1);
+
+    const followers = await connection.query(
+      'SELECT name FROM sqlite_master WHERE type = ? AND name = ?',
+      ['table', 'fediverse_followers'],
+    );
+    assert.equal(followers.rows.length, 1);
   });
 });
 
@@ -632,6 +641,14 @@ describe('RontalServiceProvider consumer boot', () => {
         per_page: 15,
         feed_title: 'Blog Feed',
         feed_description: 'Latest posts',
+        fediverse: {
+          enabled: false,
+          username: 'blog',
+          display_name: '',
+          summary: '',
+          public_base_url: '',
+          post_permalink: '',
+        },
       });
 
       const routes = app.router().listRoutes();
@@ -662,6 +679,10 @@ describe('RontalServiceProvider consumer boot', () => {
       const connection = new SqliteConnection(':memory:');
       const ran = await new Migrator(connection, paths).run();
       assert.ok(ran.includes('20260623000000_create_posts_table.js'));
+      assert.ok(ran.includes('20260806000000_create_fediverse_tables.js'));
+
+      // Federation off by default — no ActivityPub routes.
+      assert.ok(!patterns.has('GET /ap/actor'));
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
